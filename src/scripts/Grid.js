@@ -58,27 +58,4 @@ class Grid {
   }
 }
 
-let cursor = {
-  x: 0,
-  y: 0,
-}
-document.addEventListener("mousemove", (e) => {
-  cursor.x = e.clientX
-  cursor.y = e.clientY
-})
-
-let timer = undefined
-window.onresize = () => {
-  clearTimeout(timer)
-
-  timer = setTimeout(() => {
-    grid.refresh({
-      width: document.body.clientWidth,
-      height: document.body.clientHeight,
-    })
-  }, 100)
-}
-
-// export default Grid
-
 window.Grid = Grid
