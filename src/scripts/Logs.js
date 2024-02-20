@@ -1,13 +1,24 @@
 class Logs {
   container = undefined
+  disable = false
 
   dict = {}
-  constructor() {
-    this.container = document.querySelector(".logs")
+  constructor(disable) {
+    const parent = document.querySelector(".logs")
+    this.disable = disable
+    if (disable) {
+      return
+    }
+    this.container = document.createElement("div")
+    this.container.classList.add('logs-container')
+    parent.append(this.container)
   }
 
   add(key, text) {
-    const maybeEl = document.querySelector(`[data-testid=${key}`)
+    if (this.disable) {
+      return
+    }
+    const maybeEl = document.querySelector(`[data-testid=${key}]`)
     if (maybeEl) {
       this.setText(maybeEl, key, text)
       return

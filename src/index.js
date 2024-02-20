@@ -15,7 +15,6 @@ document.addEventListener("mousemove", (e) => {
   cursor.x = e.clientX
   cursor.y = e.clientY
 })
-
 let timer = undefined
 window.onresize = () => {
   clearTimeout(timer)
@@ -28,58 +27,68 @@ window.onresize = () => {
   }, 100)
 }
 
-const logs = new Logs()
-
-logs.add("default", "Init")
-logs.add("add", "Init 2")
-
 let i = 0
 
+const logs = new Logs(true)
 const grid = new Grid(".container")
 
 grid.create({
   size: 50,
   width: document.body.clientWidth,
   height: document.body.clientHeight,
-  cb: (el) => {
+  cb: (el, index) => {
+    el.innerText = `${index}`
+
     el.addEventListener("mousemove", (e) => {
-      logs.add("m", i++)
-      const distance = Vector2.getDistanceToCenter(
-        el,
-        Vector2.getCoordinatesfromMouseEvent(e)
-      )
-
-      const opacity = 1 - distance
-
-      const elOpacity = +el.style.opacity + 1
-
-      el.style.opacity = lerp(elOpacity, 0, 0.3)
+      const elOpacity = getOpacity(el) + 2
+      setOpacity(el, elOpacity)
     })
   },
 })
 
 renderLoop(() => {
   const cursorPosition = new Vector2(cursor.x, cursor.y)
+
   grid.update((el, index, bbox) => {
     const distanceFromPointToCenter = Vector2.getDistanceToCenter(
       el,
       cursorPosition
     )
 
-    const dynamicOpacityAdjustment =
-      0.5 - distanceFromPointToCenter / window.innerWidth
-
-    let currentOpacity = parseFloat(el.style.opacity)
-    if (isNaN(currentOpacity)) {
-      currentOpacity = 0
-    }
-
-    const newOpacity = currentOpacity + dynamicOpacityAdjustment
-
-    // el.style.opacity = newOpacity
-    el.style.opacity = lerp(+el.style.opacity, 0, 0.1)
-    // el.style.opacity = lerp(newOpacity, 0, 0.3);
+    const opacity = getOpacity(el)
+    const value = lerp(opacity, 0, 0.1)
+    setOpacity(el, value)
   })
 })
 
-// function
+function getOpacity(el) {
+  console.log(el.getAttribute("data-opacity"))
+  const opacity = parseFloat(el.getAttribute("data-opacity"))
+  return opacity
+  try {
+    const currentColor = window
+      .getComputedStyle(el)
+      .getPropertyValue("background-color")
+
+    const match =
+      /rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/g.exec(
+        currentColor
+      )
+
+    if (!match) {
+      debugger
+    }
+    const maybeString = parseFloat(match && match[4])
+    if (isNaN(maybeString)) {
+      return 0
+    }
+    return maybeString
+  } catch (e) {
+    debugger
+  }
+}
+
+function setOpacity(el, value) {
+  el.setAttribute("data-opacity", value)
+  el.style.backgroundColor = "rgba(" + [255, 0, 255, value].join(",") + ")"
+}

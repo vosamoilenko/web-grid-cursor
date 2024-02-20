@@ -36,7 +36,7 @@ class Grid {
     this.containerEl.replaceChildren()
 
     this.createTiles(w * h, (el, index) => {
-      // console.log(index);
+      el.setAttribute('data-opacity', 0)
       this.map.push({ el, bbox: el.getBoundingClientRect() })
       this.containerEl.append(el)
       this.postCreateCb && this.postCreateCb(el, index)
